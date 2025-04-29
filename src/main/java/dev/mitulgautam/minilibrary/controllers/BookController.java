@@ -1,19 +1,50 @@
 package dev.mitulgautam.minilibrary.controllers;
 
 import dev.mitulgautam.minilibrary.models.Book;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import dev.mitulgautam.minilibrary.service.BookService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/books")
 public class BookController {
+    final BookService bookService;
+
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
 
     @GetMapping()
-    public List<Book> getBook() {
-        //TODO: Get all books implementation.
-        return null;
+    public ResponseEntity<List<Book>> getBook() {
+        try {
+            List<Book> savedBooks = bookService.getAllBooks();
+            return ResponseEntity.ok(savedBooks);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log full error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping()
+    public ResponseEntity<Book> createBook(@RequestBody Book book) {
+        try {
+            if (book.getBookId() == null) {
+                book.setBookId(UUID.randomUUID());
+            }
+
+            if (book.getTitle() == null || book.getAuthor() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            Book savedBook = bookService.insertBook(book);
+            return ResponseEntity.ok(savedBook);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log full error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

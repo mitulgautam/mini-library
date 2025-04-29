@@ -7,11 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import jakarta.persistence.PrePersist;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Getter
+@Setter
 public class Book {
     @Id
     @NotNull
@@ -27,7 +29,7 @@ public class Book {
     String author;
 
     @Column(nullable = false)
-    boolean available;
+    boolean available = false;
 
     @PrePersist
     public void prePersist() {
