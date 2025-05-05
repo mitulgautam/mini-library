@@ -1,7 +1,9 @@
 package dev.mitulgautam.minilibrary.controllers;
 
 import dev.mitulgautam.minilibrary.models.Book;
+import dev.mitulgautam.minilibrary.responseDto.ResponseDto;
 import dev.mitulgautam.minilibrary.service.BookService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,21 +32,24 @@ public class BookController {
     }
 
     @PostMapping()
-    public ResponseEntity<Book> createBook(@RequestBody Book book) {
+    public ResponseEntity<ResponseDto<Book>> createBook(@Valid @RequestBody Book book) {
+        ResponseDto<Book> responseDto = new ResponseDto<>();
         try {
             if (book.getBookId() == null) {
                 book.setBookId(UUID.randomUUID());
             }
 
             if (book.getTitle() == null || book.getAuthor() == null) {
+                responseDto.setError("Book title and author are required");
                 return ResponseEntity.badRequest().build();
             }
 
             Book savedBook = bookService.insertBook(book);
-            return ResponseEntity.ok(savedBook);
+            responseDto.setData(savedBook);
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             e.printStackTrace(); // Log full error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
         }
     }
 }
