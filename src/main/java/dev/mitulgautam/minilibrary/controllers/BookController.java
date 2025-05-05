@@ -21,12 +21,17 @@ public class BookController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Book>> getBook() {
+    public ResponseEntity<ResponseDto<List<Book>>> getBook() {
+        ResponseDto<List<Book>> responseDto = new ResponseDto<>();
+
         try {
             List<Book> savedBooks = bookService.getAllBooks();
-            return ResponseEntity.ok(savedBooks);
+            responseDto.setData(savedBooks);
+            responseDto.setMessage("Books fetched successfully.");
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             e.printStackTrace(); // Log full error
+            responseDto.setError(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -48,7 +53,9 @@ public class BookController {
             responseDto.setData(savedBook);
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            e.printStackTrace(); // Log full error
+            e.printStackTrace();
+            responseDto.setError(e.getMessage());
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
         }
     }
